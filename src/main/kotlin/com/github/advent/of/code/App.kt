@@ -4,11 +4,10 @@ import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.check
 import com.github.ajalt.clikt.parameters.types.int
-import com.github.ajalt.mordant.animation.textAnimation
 import com.github.ajalt.mordant.rendering.TextColors
 import com.github.ajalt.mordant.rendering.TextStyles
 import com.github.ajalt.mordant.terminal.Terminal
-import kotlinx.coroutines.runInterruptible
+import kotlin.system.exitProcess
 
 class App : CliktCommand() {
     private val day by argument(
@@ -28,7 +27,7 @@ class App : CliktCommand() {
                 InputFetcher.fetch(day)
             } catch (error: Error) {
                 terminal.println(errorStyle("Unable to fetch input for day #$day."))
-                return
+                exitProcess(1)
             }
 
         val dayToExecute =
@@ -36,12 +35,20 @@ class App : CliktCommand() {
                 DayFetcher.fetch(day)
             } catch (error: NoSuchElementException) {
                 terminal.println(errorStyle("Unable to find day #$day."))
-                return
+                exitProcess(1)
             }
 
-        val result = dayToExecute.execute(part, input)
+        val result =
+            try {
+                dayToExecute.execute(part, input)
+            } catch (error: NotImplementedError) {
+                terminal.println(errorStyle("Part #$part for day #$day is not yet implemented."))
+                exitProcess(1)
+            }
 
         terminal.println("${promptStyle("The answer for day #$day part #$part is:")} ${resultStyle("$result")}")
+
+        exitProcess(0)
     }
 }
 
