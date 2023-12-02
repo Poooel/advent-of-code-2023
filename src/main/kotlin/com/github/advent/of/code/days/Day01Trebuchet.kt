@@ -12,24 +12,25 @@ class Day01Trebuchet : Executable {
     }
 
     override fun executePartTwo(input: String): Any {
-        val digits = mapOf(
-            "one" to 1,
-            "two" to 2,
-            "three" to 3,
-            "four" to 4,
-            "five" to 5,
-            "six" to 6,
-            "seven" to 7,
-            "eight" to 8,
-            "nine" to 9
-        )
+        val digits =
+            mapOf(
+                "one" to 1,
+                "two" to 2,
+                "three" to 3,
+                "four" to 4,
+                "five" to 5,
+                "six" to 6,
+                "seven" to 7,
+                "eight" to 8,
+                "nine" to 9,
+            )
 
         return input.lines().sumOf { line ->
             val digitsFound = mutableListOf<Int>()
             var offset = 0
 
             for (i in line.indices) {
-                for (j in offset ..< line.length) {
+                for (j in offset..<line.length) {
                     val substring = line.substring(offset..j)
 
                     for (digit in digits) {
