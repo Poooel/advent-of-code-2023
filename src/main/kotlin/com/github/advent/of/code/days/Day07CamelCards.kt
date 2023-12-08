@@ -75,10 +75,8 @@ class Day07CamelCards : Executable {
 
         for (i in hand1.indices) {
             if (cardStrength.indexOf(hand1[i]) < cardStrength.indexOf(hand2[i])) {
-                // println("[$hand1] is stronger than [$hand2] - (${hand1[i]}>${hand2[i]})")
                 return true
             } else if (cardStrength.indexOf(hand1[i]) > cardStrength.indexOf(hand2[i])) {
-                // println("[$hand2] is stronger than [$hand1] - (${hand2[i]}>${hand1[i]})")
                 return false
             }
         }
@@ -108,7 +106,6 @@ class Day07CamelCards : Executable {
                 if (mutableCardCount.isEmpty()) return cardCount
                 val mostCards = mutableCardCount.maxBy { it.value }.key
                 mutableCardCount[mostCards] = mutableCardCount[mostCards]!! + joker
-                println("Original cards: [$cardCount] - New cards: [$mutableCardCount]")
                 return mutableCardCount
             } else {
                 return cardCount
