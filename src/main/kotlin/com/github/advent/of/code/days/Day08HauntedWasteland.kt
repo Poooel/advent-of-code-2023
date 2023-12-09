@@ -29,7 +29,10 @@ class Day08HauntedWasteland : Executable {
             }
     }
 
-    private fun followInstructions(instructions: String, map: Map<String, Node>): Int {
+    private fun followInstructions(
+        instructions: String,
+        map: Map<String, Node>,
+    ): Int {
         val endNode = map["ZZZ"]!!
         var currentNode = map["AAA"]!!
         var steps = 0
@@ -54,41 +57,51 @@ class Day08HauntedWasteland : Executable {
         return steps
     }
 
-    private fun followInstructionsAsGhosts(instructions: String, map: Map<String, Node>): Long {
+    private fun followInstructionsAsGhosts(
+        instructions: String,
+        map: Map<String, Node>,
+    ): Long {
         val currentNodes = map.filter { node -> node.key.endsWith('A') }.values
 
-        val steps = currentNodes.map { currentNodeStart ->
-            var currentNode = currentNodeStart
-            var steps = 0L
-            var instructionsPointer = 0
+        val steps =
+            currentNodes.map { currentNodeStart ->
+                var currentNode = currentNodeStart
+                var steps = 0L
+                var instructionsPointer = 0
 
-            while (!currentNode.name.endsWith('Z')) {
-                steps++
+                while (!currentNode.name.endsWith('Z')) {
+                    steps++
 
-                if (instructionsPointer == instructions.length) {
-                    instructionsPointer = 0
+                    if (instructionsPointer == instructions.length) {
+                        instructionsPointer = 0
+                    }
+
+                    if (instructions[instructionsPointer] == 'L') {
+                        currentNode = map[currentNode.left]!!
+                    } else if (instructions[instructionsPointer] == 'R') {
+                        currentNode = map[currentNode.right]!!
+                    }
+
+                    instructionsPointer++
                 }
 
-                if (instructions[instructionsPointer] == 'L') {
-                    currentNode = map[currentNode.left]!!
-                } else if (instructions[instructionsPointer] == 'R') {
-                    currentNode = map[currentNode.right]!!
-                }
-
-                instructionsPointer++
+                steps
             }
-
-            steps
-        }
 
         return lcm(steps)
     }
 
-    private fun gcd(a: Long, b: Long): Long {
+    private fun gcd(
+        a: Long,
+        b: Long,
+    ): Long {
         return if (b == 0L) a else gcd(b, a % b)
     }
 
-    private fun lcm(a: Long, b: Long): Long {
+    private fun lcm(
+        a: Long,
+        b: Long,
+    ): Long {
         return a / gcd(a, b) * b
     }
 
@@ -96,5 +109,5 @@ class Day08HauntedWasteland : Executable {
         return numbers.reduce { acc, num -> lcm(acc, num) }
     }
 
-    data class Node (val name: String, val left: String, val right: String)
+    data class Node(val name: String, val left: String, val right: String)
 }
