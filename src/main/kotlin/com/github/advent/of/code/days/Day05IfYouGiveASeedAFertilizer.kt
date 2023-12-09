@@ -11,8 +11,7 @@ class Day05IfYouGiveASeedAFertilizer : Executable {
 
     override fun executePartTwo(input: String): Any {
         val almanach = parseAlmanach(input, true)
-        val locations = computeLocationFromAlmanach(almanach)
-        return locations.min()
+        return computeSmallestSeedFromAlmanach(almanach)
     }
 
     private fun parseAlmanach(
@@ -109,6 +108,42 @@ class Day05IfYouGiveASeedAFertilizer : Executable {
             if (value in range.source) {
                 val offset = value - range.source.first
                 return range.destination.first + offset
+            }
+        }
+
+        return value
+    }
+
+    private fun computeSmallestSeedFromAlmanach(almanach: Almanach): Long {
+        var location = 0L
+
+        while (true) {
+            var temporaryLocation = location
+
+            temporaryLocation = convertFromDestinationToSource(almanach.humidityToLocation, temporaryLocation)
+            temporaryLocation = convertFromDestinationToSource(almanach.temperatureToHumidity, temporaryLocation)
+            temporaryLocation = convertFromDestinationToSource(almanach.lightToTemperature, temporaryLocation)
+            temporaryLocation = convertFromDestinationToSource(almanach.waterToLight, temporaryLocation)
+            temporaryLocation = convertFromDestinationToSource(almanach.fertilizerToWater, temporaryLocation)
+            temporaryLocation = convertFromDestinationToSource(almanach.soilToFertilizer, temporaryLocation)
+            temporaryLocation = convertFromDestinationToSource(almanach.seedToSoil, temporaryLocation)
+
+            if (almanach.seeds.any { seedRange -> temporaryLocation in seedRange }) {
+                return location
+            } else {
+                location++
+            }
+        }
+    }
+
+    private fun convertFromDestinationToSource(
+        ranges: List<Range>,
+        value: Long,
+    ): Long {
+        for (range in ranges) {
+            if (value in range.destination) {
+                val offset = value - range.destination.first
+                return range.source.first + offset
             }
         }
 
