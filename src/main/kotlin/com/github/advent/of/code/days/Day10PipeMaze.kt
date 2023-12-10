@@ -1,7 +1,7 @@
 package com.github.advent.of.code.days
 
 import com.github.advent.of.code.Executable
-import java.util.*
+import java.util.PriorityQueue
 import kotlin.math.abs
 
 class Day10PipeMaze : Executable {
@@ -16,9 +16,9 @@ class Day10PipeMaze : Executable {
         val graph = input.lines()
         val start = findStart(graph)
         val distances = dijkstra(start, graph)
-        val loop = getCounterClockwiseOrderedLoop(distances.keys.toList(), graph)
-        val area = computeAreaOfPolygon(loop)
-        return area - (loop.size / 2 - 1)
+        val loop = getLoop(distances.keys.toList(), graph)
+        val area = computeAreaOfPolygonUsingShoelaceFormula(loop)
+        return picksTheorem(loop.size, area)
     }
 
     private fun findStart(graph: List<String>): Node {
@@ -28,7 +28,10 @@ class Day10PipeMaze : Executable {
         return startNode
     }
 
-    private fun dijkstra(source: Node, graph: List<String>): Map<Node, Int> {
+    private fun dijkstra(
+        source: Node,
+        graph: List<String>,
+    ): Map<Node, Int> {
         val visited = mutableSetOf<Node>()
         val distances = mutableMapOf<Node, Int>()
         val previous = mutableMapOf<Node, Node>()
@@ -57,7 +60,10 @@ class Day10PipeMaze : Executable {
         return distances.toMap()
     }
 
-    private fun getNeighbors(current: Node, graph: List<String>): List<Node> {
+    private fun getNeighbors(
+        current: Node,
+        graph: List<String>,
+    ): List<Node> {
         val neighbors = mutableListOf<Node>()
 
         when (current.pipe) {
@@ -107,80 +113,75 @@ class Day10PipeMaze : Executable {
                     if (graph[y1][x1] in "F7|") { // up
                         neighbors.add(Node(graph[y1][x1], x1, y1))
                     }
-                } catch (_: Exception) {}
+                } catch (_: Exception) {
+                }
 
                 try {
                     if (graph[y2][x2] in "JL|") { // down
                         neighbors.add(Node(graph[y2][x2], x2, y2))
                     }
-                }  catch (_: Exception) {}
+                } catch (_: Exception) {
+                }
 
                 try {
                     if (graph[y3][x3] in "FL-") { // left
                         neighbors.add(Node(graph[y3][x3], x3, y3))
                     }
-                } catch (_: Exception) {}
+                } catch (_: Exception) {
+                }
 
                 try {
                     if (graph[y4][x4] in "7J-") { // right
                         neighbors.add(Node(graph[y4][x4], x4, y4))
                     }
-                } catch (_: Exception) {}
+                } catch (_: Exception) {
+                }
             }
-        }
-
-        if (neighbors.size != 2) {
-            throw IllegalArgumentException("This shouldn't be more or less than 2. Current size: ${neighbors.size}")
         }
 
         return neighbors
     }
 
-    private fun getCounterClockwiseOrderedLoop(nodes: List<Node>, graph: List<String>): List<Node> {
+    private fun getLoop(
+        nodes: List<Node>,
+        graph: List<String>,
+    ): List<Node> {
         val startingNode = nodes.find { it.pipe == 'S' }!!
         val loop = mutableListOf(startingNode)
-        val startNeighbors = getNeighbors(startingNode, graph)
-        var current = getNextCounterClockwise(startingNode, startNeighbors)
+        var current = getNeighbors(startingNode, graph).first()
 
         while (current != startingNode) {
             loop.add(current)
             val currentNeighbors = getNeighbors(current, graph)
             val filteredNeighbors = currentNeighbors.filter { it !in loop }
 
-            current = if (filteredNeighbors.isEmpty()) {
-                startingNode
-            } else {
-                filteredNeighbors.first()
-            }
+            current =
+                if (filteredNeighbors.isEmpty()) {
+                    startingNode
+                } else {
+                    filteredNeighbors.first()
+                }
         }
 
         return loop
     }
 
-    private fun computeAreaOfPolygon(nodes: List<Node>): Int {
-        val nodes = nodes + nodes.first()
+    private fun computeAreaOfPolygonUsingShoelaceFormula(nodes: List<Node>): Int {
         var area = 0
 
-        for (i in 0..<nodes.size - 1) {
-            val node1 = nodes[i]
-            val node2 = nodes[i + 1]
-
+        (nodes + nodes.first()).windowed(2).forEach { window ->
+            val (node1, node2) = window
             area += (node1.y + node2.y) * (node1.x - node2.x)
         }
 
-        return abs(area) / 2
+        return abs(area)
     }
 
-    private fun getNextCounterClockwise(current: Node, neighbors: List<Node>): Node {
-        val (neighbor1, neighbor2) = neighbors
-
-        return if (neighbor1.x < current.x) {
-            neighbor1
-        } else if (neighbor1.y > current.y) {
-            neighbor1
-        } else {
-            neighbor2
-        }
+    private fun picksTheorem(
+        loopSize: Int,
+        area: Int,
+    ): Int {
+        return (area / 2) - (loopSize / 2 - 1)
     }
 
     data class Node(val pipe: Char, val x: Int, val y: Int)
