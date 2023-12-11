@@ -21,6 +21,7 @@ dependencies {
     implementation("org.reflections:reflections:0.10.2")
     implementation("org.slf4j:slf4j-api:2.0.9")
     implementation("org.slf4j:slf4j-nop:2.0.9")
+    implementation("com.google.guava:guava:32.1.3-jre")
 }
 
 tasks.withType<KotlinCompile> {
